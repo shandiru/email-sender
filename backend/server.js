@@ -3,8 +3,6 @@ const multer = require('multer');
 const xlsx = require('xlsx');
 const nodemailer = require('nodemailer');
 const cors = require('cors');
-const path = require('path');
-const fs = require('fs');
 
 const app = express();
 const PORT = 5000;
@@ -17,22 +15,9 @@ app.use(cors({
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-// Multer configuration for file upload
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const uploadDir = 'uploads';
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir);
-    }
-    cb(null, uploadDir);
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + '-' + file.originalname);
-  }
-});
-
+// Multer memory storage for Vercel (read-only filesystem)
 const upload = multer({
-  storage: storage,
+  storage: multer.memoryStorage(),
   fileFilter: (req, file, cb) => {
     if (file.mimetype.includes('sheet') ||
         file.originalname.endsWith('.xlsx') ||
@@ -108,12 +93,9 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
       return res.status(400).json({ error: 'No file uploaded' });
     }
 
-    const filePath = req.file.path;
-    const workbook = xlsx.readFile(filePath);
+    // Read from memory buffer (Vercel compatible)
+    const workbook = xlsx.read(req.file.buffer, { type: 'buffer' });
     const emails = extractEmailsFromExcel(workbook);
-
-    // Clean up uploaded file
-    fs.unlinkSync(filePath);
 
     res.json({
       success: true,
