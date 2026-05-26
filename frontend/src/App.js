@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = 'https://email-sender-ogss.vercel.app/api';
 
 function App() {
   const [file, setFile] = useState(null);
