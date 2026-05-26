@@ -35,8 +35,8 @@ const SMTP_CONFIG = {
   port: 465,
   secure: true,
   auth: {
-    user: 'msddiru@gmail.com',
-    pass: 'pynivynegybmnyhn'
+    user: 'rubakumardirushan@gmail.com',
+    pass: 'auuc qwtw fhlr evww'
   }
 };
 
